@@ -19,8 +19,8 @@ const isPublicRoute = createRouteMatcher(publicRoutes);
 export default clerkMiddleware(async (auth, req) => {
   const userId = (await auth()).userId;
 
-  if (!isPublicRoute(req)) {
-    await auth.protect();
+  if (!isPublicRoute(req) && !userId) {
+    return NextResponse.redirect(new URL("/signin", req.url));
   }
 
   if (userId) {
@@ -49,12 +49,15 @@ export default clerkMiddleware(async (auth, req) => {
       if (
         pathname === "/" ||
         pathname === "/signin" ||
-        pathname === "/signup" ||
         pathname === "/account-type"
       ) {
         // const target =
         //   role === "recruiter" ? "/recruiter/profile" : "/applicant/profile";
         return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+
+      if (pathname === "/signup") {
+        return NextResponse.redirect(new URL("/profile", req.url));
       }
     } catch (error) {
       console.error(error);
