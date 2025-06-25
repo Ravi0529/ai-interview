@@ -11,6 +11,7 @@ const publicRoutes = [
   "/signup",
   "/signin",
   "/account-type",
+  "/error",
 ];
 
 const isPublicRoute = createRouteMatcher(publicRoutes);
