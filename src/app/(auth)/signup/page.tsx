@@ -84,7 +84,7 @@ export default function SignUp() {
 
       if (completeSignup.status === "complete") {
         await setActive({ session: completeSignup.createdSessionId });
-        router.push(`/${role}/profile`);
+        router.replace("/profile");
       }
     } catch (error) {
       console.log(JSON.stringify(error, null, 2));

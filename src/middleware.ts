@@ -31,18 +31,18 @@ export default clerkMiddleware(async (auth, req) => {
         return NextResponse.redirect(new URL("/signup", req.url));
       }
 
-      if (pathname.startsWith("/applicant") && role !== "applicant") {
-        return NextResponse.redirect(new URL("/recruiter/profile", req.url));
-      }
+      //   if (pathname.startsWith("/applicant") && role !== "applicant") {
+      //     return NextResponse.redirect(new URL("/recruiter/profile", req.url));
+      //   }
 
-      if (pathname.startsWith("/recruiter") && role !== "recruiter") {
-        return NextResponse.redirect(new URL("/applicant/profile", req.url));
-      }
+      //   if (pathname.startsWith("/recruiter") && role !== "recruiter") {
+      //     return NextResponse.redirect(new URL("/applicant/profile", req.url));
+      //   }
 
       if (pathname === "/") {
-        const target =
-          role === "recruiter" ? "/recruiter/profile" : "/applicant/profile";
-        return NextResponse.redirect(new URL(target, req.url));
+        // const target =
+        //   role === "recruiter" ? "/recruiter/profile" : "/applicant/profile";
+        return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     } catch (error) {
       console.error(error);
