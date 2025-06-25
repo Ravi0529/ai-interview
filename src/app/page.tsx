@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Button asChild size="lg">
-        <Link href="/account-type">Get Started</Link>
+        <Link href="/signin">Get Started</Link>
       </Button>
     </div>
   );
