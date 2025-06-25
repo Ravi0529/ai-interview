@@ -5,7 +5,13 @@ import {
 } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const publicRoutes = ["/", "/api/webhook/register", "/signup", "/signin"];
+const publicRoutes = [
+  "/",
+  "/api/webhook/register",
+  "/signup",
+  "/signin",
+  "/account-type",
+];
 
 const isPublicRoute = createRouteMatcher(publicRoutes);
 
@@ -39,7 +45,12 @@ export default clerkMiddleware(async (auth, req) => {
       //     return NextResponse.redirect(new URL("/applicant/profile", req.url));
       //   }
 
-      if (pathname === "/") {
+      if (
+        pathname === "/" ||
+        pathname === "/signin" ||
+        pathname === "/signup" ||
+        pathname === "/account-type"
+      ) {
         // const target =
         //   role === "recruiter" ? "/recruiter/profile" : "/applicant/profile";
         return NextResponse.redirect(new URL("/dashboard", req.url));

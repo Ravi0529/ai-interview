@@ -24,7 +24,7 @@ export default function SignUp() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
-  const [role, setRole] = useState<"applicant" | "recruiter" | null>(null);
+  // const [role, setRole] = useState<"applicant" | "recruiter" | null>(null);
 
   const router = useRouter();
 
@@ -40,19 +40,22 @@ export default function SignUp() {
     e.preventDefault();
     if (!isLoaded) return;
 
-    if (!role) {
-      setError("Please select a role before signing up.");
-      return;
-    }
+    // if (!role) {
+    //   setError("Please select a role before signing up.");
+    //   return;
+    // }
 
     try {
-      await signUp.create({
-        emailAddress,
-        password,
-        unsafeMetadata: {
-          role: role,
-        },
-      });
+      const selectedRole = localStorage.getItem("selectedRole");
+      if (selectedRole === "recruiter" || selectedRole === "applicant") {
+        await signUp.create({
+          emailAddress,
+          password,
+          unsafeMetadata: {
+            role: selectedRole,
+          },
+        });
+      }
 
       await signUp.prepareEmailAddressVerification({
         strategy: "email_code",
@@ -102,23 +105,6 @@ export default function SignUp() {
         <CardContent>
           {!pendingVerification ? (
             <form onSubmit={submit} className="space-y-4">
-              <div className="flex justify-center gap-4 mb-4">
-                <Button
-                  type="button"
-                  variant={role === "applicant" ? "default" : "outline"}
-                  onClick={() => setRole("applicant")}
-                >
-                  I am a Job Seeker
-                </Button>
-                <Button
-                  type="button"
-                  variant={role === "recruiter" ? "default" : "outline"}
-                  onClick={() => setRole("recruiter")}
-                >
-                  I am a Recruiter
-                </Button>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
