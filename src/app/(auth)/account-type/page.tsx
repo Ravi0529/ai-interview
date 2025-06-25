@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 
 export default function AccountTypePage() {
   const router = useRouter();
@@ -19,7 +20,17 @@ export default function AccountTypePage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+      <div className="w-full max-w-md mb-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.back()}
+          aria-label="Go back"
+        >
+          <ArrowLeft className="size-5" />
+        </Button>
+      </div>
       <Card className="w-full max-w-md text-center animate-fade-in">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Choose your role</CardTitle>
