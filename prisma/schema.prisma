@@ -74,7 +74,7 @@ enum JobPreferences {
 model User {
   id               String            @id @map("id")
   firstName        String
-  LastName         String?
+  lastName         String
   email            String            @unique
   role             Role
   createdAt        DateTime          @default(now())
@@ -91,6 +91,8 @@ model RecruiterProfile {
   industry        Industry
   position        String?
   linkedInProfile String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model ApplicantProfile {
@@ -111,4 +113,6 @@ model ApplicantProfile {
   city            String
   state           String
   resumeUrl       String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
