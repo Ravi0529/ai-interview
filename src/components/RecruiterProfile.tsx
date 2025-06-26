@@ -100,13 +100,15 @@ export default function RecruiterProfile() {
 
   return (
     <Card className="max-w-xl mx-auto mt-8">
-      <form onSubmit={handleSubmit}>
-        <CardHeader>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-4">
+        <CardHeader className="pb-2">
           <CardTitle>Recruiter Profile</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div>
-            <Label htmlFor="companyName">Company Name *</Label>
+        <CardContent className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="companyName" className="mb-1">
+              Company Name<span className="text-red-600">*</span>
+            </Label>
             <Input
               id="companyName"
               name="companyName"
@@ -116,8 +118,10 @@ export default function RecruiterProfile() {
               disabled={loading}
             />
           </div>
-          <div>
-            <Label htmlFor="companyWebsite">Company Website</Label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="companyWebsite" className="mb-1">
+              Company Website
+            </Label>
             <Input
               id="companyWebsite"
               name="companyWebsite"
@@ -126,8 +130,10 @@ export default function RecruiterProfile() {
               disabled={loading}
             />
           </div>
-          <div>
-            <Label htmlFor="industry">Industry *</Label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="industry" className="mb-1">
+              Industry<span className="text-red-600">*</span>
+            </Label>
             <select
               id="industry"
               name="industry"
@@ -135,7 +141,7 @@ export default function RecruiterProfile() {
               onChange={(e) => setIndustry(e.target.value)}
               required
               disabled={loading}
-              className="w-full mt-1 border rounded-md px-3 py-2"
+              className="w-full border rounded-md px-3 py-2 bg-background"
             >
               <option value="" disabled>
                 Select Industry
@@ -147,8 +153,10 @@ export default function RecruiterProfile() {
               ))}
             </select>
           </div>
-          <div>
-            <Label htmlFor="position">Position</Label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="position" className="mb-1">
+              Position (HR, CTO, Hiring Manager, etc.)
+            </Label>
             <Input
               id="position"
               name="position"
@@ -157,8 +165,10 @@ export default function RecruiterProfile() {
               disabled={loading}
             />
           </div>
-          <div>
-            <Label htmlFor="linkedInProfile">LinkedIn Profile</Label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="linkedInProfile" className="mb-1">
+              LinkedIn Profile
+            </Label>
             <Input
               id="linkedInProfile"
               name="linkedInProfile"
@@ -167,10 +177,12 @@ export default function RecruiterProfile() {
               disabled={loading}
             />
           </div>
-          {error && <div className="text-red-500 text-sm">{error}</div>}
-          {success && <div className="text-green-600 text-sm">{success}</div>}
+          {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+          {success && (
+            <div className="text-green-600 text-sm mt-2">{success}</div>
+          )}
         </CardContent>
-        <CardFooter>
+        <CardFooter className="pt-2">
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Saving..." : "Save Profile"}
           </Button>
