@@ -112,7 +112,7 @@ model ApplicantProfile {
   githubProfile   String?
   city            String
   state           String
-  resumeUrl       String?
+  // resumeUrl       String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 }
