@@ -18,6 +18,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function SignUp() {
   const { isLoaded, signUp, setActive } = useSignUp();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
@@ -49,6 +51,8 @@ export default function SignUp() {
       const selectedRole = localStorage.getItem("selectedRole");
       if (selectedRole === "recruiter" || selectedRole === "applicant") {
         await signUp.create({
+          firstName,
+          lastName,
           emailAddress,
           password,
           unsafeMetadata: {
@@ -105,6 +109,32 @@ export default function SignUp() {
         <CardContent>
           {!pendingVerification ? (
             <form onSubmit={submit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First name</Label>
+                <Input
+                  type="text"
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => {
+                    setFirstName(e.target.value);
+                    setError("");
+                  }}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last name (optional)</Label>
+                <Input
+                  type="text"
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => {
+                    setLastName(e.target.value);
+                    setError("");
+                  }}
+                  required
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

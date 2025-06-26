@@ -36,8 +36,14 @@ export async function POST(req: Request) {
   }
 
   if (evt.type === "user.created") {
-    const { id, email_addresses, primary_email_address_id, unsafe_metadata } =
-      evt.data;
+    const {
+      id,
+      first_name,
+      last_name,
+      email_addresses,
+      primary_email_address_id,
+      unsafe_metadata,
+    } = evt.data;
 
     const primaryEmail = email_addresses.find(
       (email) => email.id === primary_email_address_id
@@ -51,6 +57,7 @@ export async function POST(req: Request) {
 
     try {
       const client = await clerkClient();
+
       if (role) {
         await client.users.updateUser(id, {
           publicMetadata: { role },
@@ -58,20 +65,29 @@ export async function POST(req: Request) {
         console.log(`Synced role "${role}" to publicMetadata`);
       }
 
-      const newUser = await prisma.user.create({
-        data: {
-          id: id,
-          email: primaryEmail.email_address,
-          role: role ?? "applicant",
+      const existingUser = await prisma.user.findUnique({
+        where: {
+          id,
         },
       });
 
-      console.log("New user created in DB:", newUser);
+      if (!existingUser) {
+        const newUser = await prisma.user.create({
+          data: {
+            id: id,
+            firstName: first_name ?? "",
+            lastName: last_name ?? "",
+            email: primaryEmail.email_address,
+            role: role ?? "applicant",
+          },
+        });
+        console.log("New user created in DB:", newUser);
+      }
     } catch (error) {
       console.error("Error creating user in DB or syncing metadata", error);
       return new Response("Error handling user.created", { status: 500 });
     }
+    return new Response("User processed successfully", { status: 200 });
   }
-
-  return new Response("Webhook received successfully", { status: 200 });
+  return new Response("Event type not handled", { status: 200 });
 }
