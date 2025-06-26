@@ -17,7 +17,7 @@ export const GET = async (req: NextResponse) => {
   }
 
   try {
-    const profile = await prisma.applicantProfile.findUnique({
+    const profile = await prisma.recruiterProfile.findUnique({
       where: {
         userId,
       },
@@ -36,7 +36,7 @@ export const GET = async (req: NextResponse) => {
 
     return NextResponse.json(profile);
   } catch (error) {
-    console.error("Error fetching applicant profile:", error);
+    console.error("Error fetching recruiter profile:", error);
     return NextResponse.json(
       {
         error: "Internal server error",
@@ -77,7 +77,7 @@ export const POST = async (req: NextResponse) => {
       );
     }
 
-    const existingProfile = await prisma.applicantProfile.findUnique({
+    const existingProfile = await prisma.recruiterProfile.findUnique({
       where: {
         userId,
       },
@@ -93,19 +93,19 @@ export const POST = async (req: NextResponse) => {
     };
 
     const profile = existingProfile
-      ? await prisma.applicantProfile.update({
+      ? await prisma.recruiterProfile.update({
           where: {
             userId,
           },
           data: payload,
         })
-      : await prisma.applicantProfile.create({
+      : await prisma.recruiterProfile.create({
           data: payload,
         });
 
     return NextResponse.json(profile);
   } catch (error) {
-    console.error("Error creating/updating applicant profile:", error);
+    console.error("Error creating/updating recruiter profile:", error);
     return NextResponse.json(
       {
         error: "Internal server error",
