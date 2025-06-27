@@ -71,6 +71,18 @@ enum JobPreferences {
   Other
 }
 
+enum ApplicationStatus {
+  Applied
+  Reviewing
+  Accepted
+  Rejected
+}
+
+enum WorkStatus {
+  Remote
+  Offline
+}
+
 model User {
   id               String            @id @map("id")
   firstName        String
@@ -80,6 +92,8 @@ model User {
   createdAt        DateTime          @default(now())
   recruiterProfile RecruiterProfile?
   applicantProfile ApplicantProfile?
+  jobsCreated      Job[]
+  applications     Application[]
 }
 
 model RecruiterProfile {
@@ -114,4 +128,33 @@ model ApplicantProfile {
   state           String
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+}
+
+model Job {
+  id             String        @id @default(uuid())
+  title          String
+  description    String
+  location       String
+  industry       Industry
+  experience     Experience
+  salary         String?
+  requiredSkills String[]
+  workStatus     WorkStatus
+  createdById    String
+  createdBy      User          @relation(fields: [createdById], references: [id])
+  applications   Application[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Application {
+  id          String            @id @default(uuid())
+  // resumeUrl   String
+  status      ApplicationStatus @default(Applied)
+  jobId       String
+  job         Job               @relation(fields: [jobId], references: [id])
+  applicantId String
+  applicant   User              @relation(fields: [applicantId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
