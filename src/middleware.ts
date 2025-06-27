@@ -35,7 +35,7 @@ export default clerkMiddleware(async (auth, req) => {
       const pathname = req.nextUrl.pathname;
 
       if (!role) {
-        return NextResponse.redirect(new URL("/signup", req.url));
+        return NextResponse.redirect(new URL("/", req.url));
       }
 
       //   if (pathname.startsWith("/applicant") && role !== "applicant") {
