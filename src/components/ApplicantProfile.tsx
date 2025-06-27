@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import MultiSelect from "./MultiSelect";
 import { toast } from "sonner";
 import axios, { AxiosResponse } from "axios";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 const EXPERIENCE_OPTIONS = [
   { label: "Fresher", value: "Fresher" },
@@ -64,6 +66,8 @@ export default function ApplicantProfile() {
   const [state, setState] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
@@ -138,6 +142,7 @@ export default function ApplicantProfile() {
     try {
       await axios.post("/api/applicant-profile", payload);
       toast.success("Profile saved successfully.");
+      router.replace("/dashboard");
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error) {
         toast.error(error.response.data.error);
@@ -150,215 +155,230 @@ export default function ApplicantProfile() {
   };
 
   return (
-    <Card className="max-w-xl mx-auto mt-8">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-4">
-        <CardHeader className="pb-2">
-          <CardTitle>Applicant Profile</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="phone" className="mb-1">
-              Phone Number<span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="phone"
-              name="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              disabled={loading}
-              type="tel"
-              placeholder="Enter your phone number"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="age" className="mb-1">
-              Age<span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="age"
-              name="age"
-              value={age}
-              onChange={(e) => setAge(e.target.value.replace(/[^0-9]/g, ""))}
-              required
-              disabled={loading}
-              type="number"
-              min={0}
-              placeholder="Enter your age"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="education" className="mb-1">
-              Education<span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="education"
-              name="education"
-              value={education}
-              onChange={(e) => setEducation(e.target.value)}
-              required
-              disabled={loading}
-              placeholder="e.g. B.Tech, M.Sc, etc."
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="instituteName" className="mb-1">
-              Institute Name<span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="instituteName"
-              name="instituteName"
-              value={instituteName}
-              onChange={(e) => setInstituteName(e.target.value)}
-              required
-              disabled={loading}
-              placeholder="Enter your institute name"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="currentCompany" className="mb-1">
-              Current Company
-            </Label>
-            <Input
-              id="currentCompany"
-              name="currentCompany"
-              value={currentCompany}
-              onChange={(e) => setCurrentCompany(e.target.value)}
-              disabled={loading}
-              placeholder="Enter your current company (if any)"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="currentStatus" className="mb-1">
-              Current Status<span className="text-red-600">*</span>
-            </Label>
-            <select
-              id="currentStatus"
-              name="currentStatus"
-              value={currentStatus}
-              onChange={(e) => setCurrentStatus(e.target.value)}
-              required
-              disabled={loading}
-              className="w-full border rounded-md px-3 py-2 bg-background"
-            >
-              <option value="" disabled>
-                Select Status
-              </option>
-              {STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="experience" className="mb-1">
-              Experience<span className="text-red-600">*</span>
-            </Label>
-            <select
-              id="experience"
-              name="experience"
-              value={experience}
-              onChange={(e) => setExperience(e.target.value)}
-              required
-              disabled={loading}
-              className="w-full border rounded-md px-3 py-2 bg-background"
-            >
-              <option value="" disabled>
-                Select Experience
-              </option>
-              {EXPERIENCE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="mb-1">
-              Job Preferences<span className="text-red-600">*</span>
-            </Label>
-            <MultiSelect
-              label="Job Preferences"
-              options={JOB_PREFERENCES_OPTIONS}
-              value={jobPreferences}
-              onChange={setJobPreferences}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="linkedInProfile" className="mb-1">
-              LinkedIn Profile
-            </Label>
-            <Input
-              id="linkedInProfile"
-              name="linkedInProfile"
-              value={linkedInProfile}
-              onChange={(e) => setLinkedInProfile(e.target.value)}
-              disabled={loading}
-              placeholder="LinkedIn URL"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="xProfile" className="mb-1">
-              X (Twitter) Profile
-            </Label>
-            <Input
-              id="xProfile"
-              name="xProfile"
-              value={xProfile}
-              onChange={(e) => setXProfile(e.target.value)}
-              disabled={loading}
-              placeholder="Twitter/X URL"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="githubProfile" className="mb-1">
-              GitHub Profile
-            </Label>
-            <Input
-              id="githubProfile"
-              name="githubProfile"
-              value={githubProfile}
-              onChange={(e) => setGithubProfile(e.target.value)}
-              disabled={loading}
-              placeholder="GitHub URL"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="city" className="mb-1">
-              City<span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="city"
-              name="city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              required
-              disabled={loading}
-              placeholder="Enter your city"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="state" className="mb-1">
-              State<span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="state"
-              name="state"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-              required
-              disabled={loading}
-              placeholder="Enter your state"
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="pt-2">
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Saving..." : "Save Profile"}
+    <div className="min-h-screen bg-background flex flex-col justify-center">
+      <div className="max-w-xl w-full mx-auto px-2">
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            aria-label="Go back"
+          >
+            <ArrowLeft className="size-5" />
           </Button>
-        </CardFooter>
-      </form>
-    </Card>
+        </div>
+        <Card className="w-full">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-4">
+            <CardHeader className="pb-2">
+              <CardTitle>Applicant Profile</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="phone" className="mb-1">
+                  Phone Number<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  disabled={loading}
+                  type="tel"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="age" className="mb-1">
+                  Age<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="age"
+                  name="age"
+                  value={age}
+                  onChange={(e) =>
+                    setAge(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                  required
+                  disabled={loading}
+                  type="number"
+                  min={0}
+                  placeholder="Enter your age"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="education" className="mb-1">
+                  Education<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="education"
+                  name="education"
+                  value={education}
+                  onChange={(e) => setEducation(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="e.g. B.Tech, M.Sc, etc."
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="instituteName" className="mb-1">
+                  Institute Name<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="instituteName"
+                  name="instituteName"
+                  value={instituteName}
+                  onChange={(e) => setInstituteName(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="Enter your institute name"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="currentCompany" className="mb-1">
+                  Current Company
+                </Label>
+                <Input
+                  id="currentCompany"
+                  name="currentCompany"
+                  value={currentCompany}
+                  onChange={(e) => setCurrentCompany(e.target.value)}
+                  disabled={loading}
+                  placeholder="Enter your current company (if any)"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="currentStatus" className="mb-1">
+                  Current Status<span className="text-red-600">*</span>
+                </Label>
+                <select
+                  id="currentStatus"
+                  name="currentStatus"
+                  value={currentStatus}
+                  onChange={(e) => setCurrentStatus(e.target.value)}
+                  required
+                  disabled={loading}
+                  className="w-full border rounded-md px-3 py-2 bg-background"
+                >
+                  <option value="" disabled>
+                    Select Status
+                  </option>
+                  {STATUS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="experience" className="mb-1">
+                  Experience<span className="text-red-600">*</span>
+                </Label>
+                <select
+                  id="experience"
+                  name="experience"
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  required
+                  disabled={loading}
+                  className="w-full border rounded-md px-3 py-2 bg-background"
+                >
+                  <option value="" disabled>
+                    Select Experience
+                  </option>
+                  {EXPERIENCE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="mb-1">
+                  Job Preferences<span className="text-red-600">*</span>
+                </Label>
+                <MultiSelect
+                  options={JOB_PREFERENCES_OPTIONS}
+                  value={jobPreferences}
+                  onChange={setJobPreferences}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="linkedInProfile" className="mb-1">
+                  LinkedIn Profile
+                </Label>
+                <Input
+                  id="linkedInProfile"
+                  name="linkedInProfile"
+                  value={linkedInProfile}
+                  onChange={(e) => setLinkedInProfile(e.target.value)}
+                  disabled={loading}
+                  placeholder="LinkedIn URL"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="xProfile" className="mb-1">
+                  X (Twitter) Profile
+                </Label>
+                <Input
+                  id="xProfile"
+                  name="xProfile"
+                  value={xProfile}
+                  onChange={(e) => setXProfile(e.target.value)}
+                  disabled={loading}
+                  placeholder="Twitter/X URL"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="githubProfile" className="mb-1">
+                  GitHub Profile
+                </Label>
+                <Input
+                  id="githubProfile"
+                  name="githubProfile"
+                  value={githubProfile}
+                  onChange={(e) => setGithubProfile(e.target.value)}
+                  disabled={loading}
+                  placeholder="GitHub URL"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="city" className="mb-1">
+                  City<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="city"
+                  name="city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="Enter your city"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="state" className="mb-1">
+                  State<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="state"
+                  name="state"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="Enter your state"
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="pt-2">
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? "Saving..." : "Save Profile"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </div>
   );
 }

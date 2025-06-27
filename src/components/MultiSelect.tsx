@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 interface MultiSelectProps {
-  label: string;
+  label?: string;
   options: { label: string; value: string }[];
   value: string[];
   onChange: (value: string[]) => void;

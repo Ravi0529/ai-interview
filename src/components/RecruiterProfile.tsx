@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import axios, { AxiosResponse } from "axios";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 const INDUSTRY_OPTIONS = [
   { label: "EdTech", value: "EdTech" },
@@ -38,6 +40,7 @@ export default function RecruiterProfile() {
   const [linkedInProfile, setLinkedInProfile] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
@@ -84,6 +87,7 @@ export default function RecruiterProfile() {
     try {
       await axios.post("/api/recruiter-profile", payload);
       toast.success("Profile saved successfully.");
+      router.replace("/dashboard");
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error) {
         toast.error(error.response.data.error);
@@ -96,91 +100,105 @@ export default function RecruiterProfile() {
   };
 
   return (
-    <Card className="max-w-xl mx-auto mt-8">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-4">
-        <CardHeader className="pb-2">
-          <CardTitle>Recruiter Profile</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="companyName" className="mb-1">
-              Company Name<span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="companyName"
-              name="companyName"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="companyWebsite" className="mb-1">
-              Company Website
-            </Label>
-            <Input
-              id="companyWebsite"
-              name="companyWebsite"
-              value={companyWebsite}
-              onChange={(e) => setCompanyWebsite(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="industry" className="mb-1">
-              Industry<span className="text-red-600">*</span>
-            </Label>
-            <select
-              id="industry"
-              name="industry"
-              value={industry}
-              onChange={(e) => setIndustry(e.target.value)}
-              required
-              disabled={loading}
-              className="w-full border rounded-md px-3 py-2 bg-background"
-            >
-              <option value="" disabled>
-                Select Industry
-              </option>
-              {INDUSTRY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="position" className="mb-1">
-              Position (HR, CTO, Hiring Manager, etc.)
-            </Label>
-            <Input
-              id="position"
-              name="position"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="linkedInProfile" className="mb-1">
-              LinkedIn Profile
-            </Label>
-            <Input
-              id="linkedInProfile"
-              name="linkedInProfile"
-              value={linkedInProfile}
-              onChange={(e) => setLinkedInProfile(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="pt-2">
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Saving..." : "Save Profile"}
+    <div className="min-h-screen bg-background flex flex-col justify-center">
+      <div className="max-w-xl w-full mx-auto px-2">
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            aria-label="Go back"
+          >
+            <ArrowLeft className="size-5" />
           </Button>
-        </CardFooter>
-      </form>
-    </Card>
+        </div>
+        <Card className="w-full">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-4">
+            <CardHeader className="pb-2">
+              <CardTitle>Recruiter Profile</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="companyName" className="mb-1">
+                  Company Name<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="companyName"
+                  name="companyName"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="companyWebsite" className="mb-1">
+                  Company Website
+                </Label>
+                <Input
+                  id="companyWebsite"
+                  name="companyWebsite"
+                  value={companyWebsite}
+                  onChange={(e) => setCompanyWebsite(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="industry" className="mb-1">
+                  Industry<span className="text-red-600">*</span>
+                </Label>
+                <select
+                  id="industry"
+                  name="industry"
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                  required
+                  disabled={loading}
+                  className="w-full border rounded-md px-3 py-2 bg-background"
+                >
+                  <option value="" disabled>
+                    Select Industry
+                  </option>
+                  {INDUSTRY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="position" className="mb-1">
+                  Position (HR, CTO, Hiring Manager, etc.)
+                </Label>
+                <Input
+                  id="position"
+                  name="position"
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="linkedInProfile" className="mb-1">
+                  LinkedIn Profile
+                </Label>
+                <Input
+                  id="linkedInProfile"
+                  name="linkedInProfile"
+                  value={linkedInProfile}
+                  onChange={(e) => setLinkedInProfile(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="pt-2">
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? "Saving..." : "Save Profile"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </div>
   );
 }
