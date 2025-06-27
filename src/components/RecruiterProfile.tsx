@@ -9,6 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import axios, { AxiosResponse } from "axios";
 
 const INDUSTRY_OPTIONS = [
@@ -37,8 +38,6 @@ export default function RecruiterProfile() {
   const [linkedInProfile, setLinkedInProfile] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -58,8 +57,8 @@ export default function RecruiterProfile() {
         setPosition(data.position || "");
         setLinkedInProfile(data.linkedInProfile || "");
       })
-      .catch((error) => {
-        setError("Failed to load profile.");
+      .catch(() => {
+        toast.error("Failed to load profile.");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -67,10 +66,8 @@ export default function RecruiterProfile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
     if (!companyName || !industry) {
-      setError("Company name and industry are required.");
+      toast.error("Company name and industry are required.");
       setLoading(false);
       return;
     }
@@ -86,12 +83,12 @@ export default function RecruiterProfile() {
 
     try {
       await axios.post("/api/recruiter-profile", payload);
-      setSuccess("Profile saved successfully.");
+      toast.success("Profile saved successfully.");
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error) {
-        setError(error.response.data.error);
+        toast.error(error.response.data.error);
       } else {
-        setError("Failed to save profile.");
+        toast.error("Failed to save profile.");
       }
     } finally {
       setLoading(false);
@@ -177,10 +174,6 @@ export default function RecruiterProfile() {
               disabled={loading}
             />
           </div>
-          {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-          {success && (
-            <div className="text-green-600 text-sm mt-2">{success}</div>
-          )}
         </CardContent>
         <CardFooter className="pt-2">
           <Button type="submit" disabled={loading} className="w-full">

@@ -17,7 +17,7 @@ export const GET = async (req: NextResponse) => {
   }
 
   try {
-    const profile = await prisma.recruiterProfile.findUnique({
+    const profile = await prisma.applicantProfile.findUnique({
       where: {
         userId,
       },
@@ -101,7 +101,7 @@ export const POST = async (req: NextResponse) => {
       );
     }
 
-    const existingProfile = await prisma.recruiterProfile.findUnique({
+    const existingProfile = await prisma.applicantProfile.findUnique({
       where: {
         userId,
       },
