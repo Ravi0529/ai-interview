@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
+import RecruiterDashboard from "@/components/dashboard/RecruiterDashboard";
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -14,6 +15,7 @@ export default function DashboardPage() {
   return (
     <div>
       <h1>{role} Dashboard</h1>
+      {role === "recruiter" && <RecruiterDashboard />}
     </div>
   );
 }
