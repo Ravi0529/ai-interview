@@ -1,7 +1,7 @@
 "use client";
 
-import ApplicantProfile from "@/components/ApplicantProfile";
-import RecruiterProfile from "@/components/RecruiterProfile";
+import ApplicantProfile from "@/components/profile/ApplicantProfile";
+import RecruiterProfile from "@/components/profile/RecruiterProfile";
 import { useUser } from "@clerk/nextjs";
 
 export default function RoleBasedProfilePage() {
