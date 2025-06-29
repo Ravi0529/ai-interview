@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const INDUSTRY_OPTIONS = [
   { label: "EdTech", value: "EdTech" },
@@ -58,6 +59,8 @@ export default function JobForm() {
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState("");
 
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -95,6 +98,8 @@ export default function JobForm() {
       setSalary("");
       setRequiredSkills([]);
       setWorkStatus("");
+
+      router.replace("/dashboard");
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Failed to post job.");
     } finally {
