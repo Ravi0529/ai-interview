@@ -5,8 +5,9 @@ import prisma from "@/lib/prisma";
 // GET single job (selected by the applicant)
 export const GET = async (
   req: NextRequest,
-  { params }: { params: { jobId: string } }
+  context: { params: { jobId: string } }
 ) => {
+  const { params } = await context;
   const userId = (await auth()).userId;
 
   if (!userId) {
@@ -77,8 +78,9 @@ export const GET = async (
 // Edit the posted jobs (Only Recruiter)
 export const PUT = async (
   req: NextRequest,
-  { params }: { params: { jobId: string } }
+  context: { params: { jobId: string } }
 ) => {
+  const { params } = await context;
   const userId = (await auth()).userId;
 
   if (!userId) {
@@ -145,8 +147,9 @@ export const PUT = async (
 // Delete the posted jobs (Only Recruiter)
 export const DELETE = async (
   req: NextRequest,
-  { params }: { params: { jobId: string } }
+  context: { params: { jobId: string } }
 ) => {
+  const { params } = await context;
   const userId = (await auth()).userId;
 
   if (!userId) {

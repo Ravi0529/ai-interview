@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -29,7 +29,13 @@ const WORK_STATUS_OPTIONS = [
   { label: "Offline", value: "Offline" },
 ];
 
-export default function JobForm() {
+export default function JobForm({
+  jobId,
+  initialValues,
+}: {
+  jobId?: string;
+  initialValues?: any;
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
@@ -41,6 +47,18 @@ export default function JobForm() {
   const [skillInput, setSkillInput] = useState("");
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (initialValues) {
+      setTitle(initialValues.title || "");
+      setDescription(initialValues.description || "");
+      setLocation(initialValues.location || "");
+      setExperience(initialValues.experience || "");
+      setSalary(initialValues.salary || "");
+      setRequiredSkills(initialValues.requiredSkills || []);
+      setWorkStatus(initialValues.workStatus || "");
+    }
+  }, [initialValues]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,16 +77,29 @@ export default function JobForm() {
       return;
     }
     try {
-      await axios.post("/api/jobs", {
-        title,
-        description,
-        location,
-        experience,
-        salary: salary || null,
-        requiredSkills,
-        workStatus,
-      });
-      toast.success("Job posted successfully!");
+      if (jobId) {
+        await axios.put(`/api/jobs/${jobId}`, {
+          title,
+          description,
+          location,
+          experience,
+          salary,
+          requiredSkills,
+          workStatus,
+        });
+        toast.success("Job updated successfully!");
+      } else {
+        await axios.post("/api/jobs", {
+          title,
+          description,
+          location,
+          experience,
+          salary,
+          requiredSkills,
+          workStatus,
+        });
+        toast.success("Job posted successfully!");
+      }
       setTitle("");
       setDescription("");
       setLocation("");
@@ -79,7 +110,7 @@ export default function JobForm() {
 
       router.replace("/dashboard");
     } catch (error: any) {
-      toast.error(error?.response?.data?.error || "Failed to post job.");
+      toast.error(error?.response?.data?.error || "Failed to save job.");
     } finally {
       setLoading(false);
     }
@@ -237,9 +268,25 @@ export default function JobForm() {
             </div>
           </CardContent>
           <CardFooter className="pt-2">
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Posting..." : "Post Job"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={loading} className="w-full">
+                {jobId
+                  ? loading
+                    ? "Updating..."
+                    : "Update Job"
+                  : loading
+                  ? "Posting..."
+                  : "Post Job"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => router.back()}
+              >
+                Cancel
+              </Button>
+            </div>
           </CardFooter>
         </form>
       </Card>

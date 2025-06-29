@@ -45,17 +45,13 @@ export default function JobDetail() {
       .finally(() => setLoading(false));
   }, [jobId]);
 
-  const handleEdit = async () => {
-    // TODO
-  };
-
   const handleDelete = async () => {
     if (!jobId) return;
     if (!confirm("Are you sure you want to delete this job?")) return;
     setLoading(true);
     try {
       await axios.delete(`/api/jobs/${jobId}`);
-      router.replace("/dashboard/jobs");
+      router.replace("/dashboard");
     } catch (error: any) {
       setError(error?.response?.data?.error || "Failed to delete job");
     } finally {
@@ -91,6 +87,19 @@ export default function JobDetail() {
           <b>Experience:</b>{" "}
           {EXPERIENCE_LABELS[job.experience] || job.experience}
         </span>
+        {Array.isArray(job.requiredSkills) && job.requiredSkills.length > 0 && (
+          <span className="flex flex-wrap items-center gap-1">
+            <b>Required Skills:</b>
+            {job.requiredSkills.map((skill: string, idx: number) => (
+              <span
+                key={idx}
+                className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs ml-1"
+              >
+                {skill}
+              </span>
+            ))}
+          </span>
+        )}
       </div>
       {recruiterProfile && (
         <div className="mb-2">
