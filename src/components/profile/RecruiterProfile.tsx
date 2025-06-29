@@ -38,6 +38,8 @@ export default function RecruiterProfile() {
   const [industry, setIndustry] = useState<string>("");
   const [position, setPosition] = useState("");
   const [linkedInProfile, setLinkedInProfile] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -59,6 +61,8 @@ export default function RecruiterProfile() {
         );
         setPosition(data.position || "");
         setLinkedInProfile(data.linkedInProfile || "");
+        setFirstName(data.user?.firstName || "");
+        setLastName(data.user?.lastName || "");
       })
       .catch(() => {
         toast.error("Failed to load profile.");
@@ -118,6 +122,11 @@ export default function RecruiterProfile() {
               <CardTitle>Recruiter Profile</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <span className="font-medium text-base">
+                  Welcome, {firstName} {lastName}
+                </span>
+              </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="companyName" className="mb-1">
                   Company Name<span className="text-red-600">*</span>

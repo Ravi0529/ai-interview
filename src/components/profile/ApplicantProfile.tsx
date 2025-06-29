@@ -64,6 +64,8 @@ export default function ApplicantProfile() {
   const [githubProfile, setGithubProfile] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const [loading, setLoading] = useState(false);
 
@@ -94,6 +96,8 @@ export default function ApplicantProfile() {
         setGithubProfile(data.githubProfile || "");
         setCity(data.city || "");
         setState(data.state || "");
+        setFirstName(data.user?.firstName || "");
+        setLastName(data.user?.lastName || "");
       })
       .catch(() => {
         toast.error("Failed to load profile.");
@@ -173,6 +177,11 @@ export default function ApplicantProfile() {
               <CardTitle>Applicant Profile</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <span className="font-medium text-base">
+                  Welcome, {firstName} {lastName}
+                </span>
+              </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="phone" className="mb-1">
                   Phone Number<span className="text-red-600">*</span>

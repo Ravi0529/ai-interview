@@ -21,6 +21,14 @@ export const GET = async (req: NextResponse) => {
       where: {
         userId,
       },
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
     });
 
     if (!profile) {
