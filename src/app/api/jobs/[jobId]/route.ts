@@ -32,6 +32,13 @@ export const GET = async (
             firstName: true,
             lastName: true,
             role: true,
+            recruiterProfile: {
+              select: {
+                companyName: true,
+                companyWebsite: true,
+                industry: true,
+              },
+            },
           },
         },
         _count: {
@@ -117,7 +124,6 @@ export const PUT = async (
         title: data.title,
         description: data.description,
         location: data.location,
-        industry: data.industry,
         experience: data.experience,
         salary: data.salary,
         requiredSkills: data.requiredSkills,

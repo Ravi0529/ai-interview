@@ -1,3 +1,5 @@
+import JobDetail from "@/components/jobs/JobDetail";
+
 export default function SingleJobPostPage() {
-  return <div>Welcome to single Job Post Info</div>;
+  return <JobDetail />;
 }
