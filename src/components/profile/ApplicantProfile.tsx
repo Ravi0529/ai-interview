@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import MultiSelect from "./MultiSelect";
+import MultiSelect from "../MultiSelect";
 import { toast } from "sonner";
 import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";

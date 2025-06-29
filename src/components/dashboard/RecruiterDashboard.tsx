@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import JobList from "../jobs/JobList";
 
 export default function RecruiterDashboard() {
   const router = useRouter();
@@ -8,6 +9,10 @@ export default function RecruiterDashboard() {
       <Button onClick={() => router.push("/dashboard/jobs/new")}>
         Post a New Job
       </Button>
+
+      <div className="mt-8 w-full max-w-2xl">
+        <JobList />
+      </div>
     </div>
   );
 }

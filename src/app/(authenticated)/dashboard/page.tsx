@@ -2,6 +2,7 @@
 
 import { useUser } from "@clerk/nextjs";
 import RecruiterDashboard from "@/components/dashboard/RecruiterDashboard";
+import ApplicantDashboard from "@/components/dashboard/ApplicantDashboard";
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -12,10 +13,13 @@ export default function DashboardPage() {
 
   if (!user) return <div>Loading...</div>;
 
-  return (
-    <div>
-      <h1>{role} Dashboard</h1>
-      {role === "recruiter" && <RecruiterDashboard />}
-    </div>
-  );
+  if (role === "recruiter") {
+    return <RecruiterDashboard />;
+  }
+
+  if (role === "applicant") {
+    return <ApplicantDashboard />;
+  }
+
+  return <div>Invalid role</div>;
 }

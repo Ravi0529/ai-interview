@@ -29,6 +29,13 @@ export const GET = async (req: NextRequest) => {
             firstName: true,
             lastName: true,
             role: true,
+            recruiterProfile: {
+              select: {
+                companyName: true,
+                companyWebsite: true,
+                industry: true,
+              },
+            },
           },
         },
       },
@@ -88,7 +95,6 @@ export const POST = async (req: NextRequest) => {
       title,
       description,
       location,
-      industry,
       experience,
       salary,
       requiredSkills,
@@ -99,7 +105,6 @@ export const POST = async (req: NextRequest) => {
       !title ||
       !description ||
       !location ||
-      !industry ||
       !experience ||
       !requiredSkills ||
       !workStatus
@@ -115,7 +120,6 @@ export const POST = async (req: NextRequest) => {
         title,
         description,
         location,
-        industry,
         experience,
         salary: salary || null,
         requiredSkills,

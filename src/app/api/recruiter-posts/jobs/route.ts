@@ -52,6 +52,17 @@ export const GET = async () => {
             applications: true,
           },
         },
+        createdBy: {
+          select: {
+            recruiterProfile: {
+              select: {
+                companyName: true,
+                companyWebsite: true,
+                industry: true,
+              },
+            },
+          },
+        },
       },
     });
 

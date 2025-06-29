@@ -15,24 +15,6 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-const INDUSTRY_OPTIONS = [
-  { label: "EdTech", value: "EdTech" },
-  { label: "FinTech", value: "FinTech" },
-  { label: "HealthTech", value: "HealthTech" },
-  { label: "SaaS", value: "SaaS" },
-  { label: "ECommerce", value: "ECommerce" },
-  { label: "Gaming", value: "Gaming" },
-  { label: "Logistics", value: "Logistics" },
-  { label: "RealEstate", value: "RealEstate" },
-  { label: "CyberSecurity", value: "CyberSecurity" },
-  { label: "Consulting", value: "Consulting" },
-  { label: "Manufacturing", value: "Manufacturing" },
-  { label: "Media", value: "Media" },
-  { label: "Travel", value: "Travel" },
-  { label: "AI", value: "AI" },
-  { label: "Other", value: "Other" },
-];
-
 const EXPERIENCE_OPTIONS = [
   { label: "Fresher", value: "Fresher" },
   { label: "1-2 Years", value: "OneToTwoYears" },
@@ -51,7 +33,6 @@ export default function JobForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [industry, setIndustry] = useState("");
   const [experience, setExperience] = useState("");
   const [salary, setSalary] = useState("");
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
@@ -68,7 +49,6 @@ export default function JobForm() {
       !title ||
       !description ||
       !location ||
-      !industry ||
       !experience ||
       requiredSkills.length === 0 ||
       !workStatus ||
@@ -83,7 +63,6 @@ export default function JobForm() {
         title,
         description,
         location,
-        industry,
         experience,
         salary: salary || null,
         requiredSkills,
@@ -93,7 +72,6 @@ export default function JobForm() {
       setTitle("");
       setDescription("");
       setLocation("");
-      setIndustry("");
       setExperience("");
       setSalary("");
       setRequiredSkills([]);
@@ -169,28 +147,6 @@ export default function JobForm() {
                 disabled={loading}
                 placeholder="e.g. Bangalore, Remote"
               />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="industry">
-                Industry<span className="text-red-600">*</span>
-              </Label>
-              <select
-                id="industry"
-                value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
-                required
-                disabled={loading}
-                className="w-full border rounded-md px-3 py-2 bg-background"
-              >
-                <option value="" disabled>
-                  Select Industry
-                </option>
-                {INDUSTRY_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="experience">

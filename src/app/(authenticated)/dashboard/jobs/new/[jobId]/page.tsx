@@ -1,3 +1,3 @@
 export default function SingleJobPostPage() {
-  return <div></div>;
+  return <div>Welcome to single Job Post Info</div>;
 }

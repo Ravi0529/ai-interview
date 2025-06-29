@@ -135,7 +135,6 @@ model Job {
   title          String
   description    String
   location       String
-  industry       Industry
   experience     Experience
   salary         String
   requiredSkills String[]
