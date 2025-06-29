@@ -137,7 +137,7 @@ model Job {
   location       String
   industry       Industry
   experience     Experience
-  salary         String?
+  salary         String
   requiredSkills String[]
   workStatus     WorkStatus
   createdById    String

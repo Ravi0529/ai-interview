@@ -68,9 +68,10 @@ export default function JobForm() {
       !industry ||
       !experience ||
       requiredSkills.length === 0 ||
-      !workStatus
+      !workStatus ||
+      !salary
     ) {
-      toast.error("All fields except salary are required.");
+      toast.error("All fields are required.");
       setLoading(false);
       return;
     }
@@ -209,13 +210,15 @@ export default function JobForm() {
               </select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="salary">Salary</Label>
+              <Label htmlFor="salary">
+                Salary<span className="text-red-600">*</span>
+              </Label>
               <Input
                 id="salary"
                 value={salary}
                 onChange={(e) => setSalary(e.target.value)}
                 disabled={loading}
-                placeholder="e.g. 10-15 LPA"
+                placeholder="e.g. ₹ 15000-20000 /month, ₹ 3-4 LPA, Unpaid"
               />
             </div>
             <div className="flex flex-col gap-2">
