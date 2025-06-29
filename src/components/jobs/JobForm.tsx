@@ -45,8 +45,28 @@ export default function JobForm({
   const [workStatus, setWorkStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState("");
+  const [rephrasing, setRephrasing] = useState(false);
 
   const router = useRouter();
+
+  const rephraseDescription = async () => {
+    if (!description)
+      return toast.error("Please enter a description to rephrase.");
+    setRephrasing(true);
+    try {
+      const res = await axios.post("/api/rephrase", { description });
+      if (res.data?.rephrased) {
+        setDescription(res.data.rephrased);
+        toast.success("Description rephrased by AI!");
+      } else {
+        toast.error("AI did not return a rephrased description.");
+      }
+    } catch (err) {
+      toast.error("Failed to rephrase description with AI.");
+    } finally {
+      setRephrasing(false);
+    }
+  };
 
   useEffect(() => {
     if (initialValues) {
@@ -155,16 +175,27 @@ export default function JobForm({
               <Label htmlFor="description">
                 Description<span className="text-red-600">*</span>
               </Label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-                disabled={loading}
-                placeholder="Job description"
-                rows={6}
-                className="w-full border rounded-md px-3 py-2 bg-background resize-y min-h-[120px]"
-              />
+              <div className="flex gap-2 items-start">
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                  disabled={loading || rephrasing}
+                  placeholder="Job description"
+                  rows={6}
+                  className="w-full border rounded-md px-3 py-2 bg-background resize-y min-h-[120px]"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="h-fit mt-1"
+                  onClick={rephraseDescription}
+                  disabled={rephrasing || !description}
+                >
+                  {rephrasing ? "Rephrasing..." : "Rephrase with AI"}
+                </Button>
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="location">
