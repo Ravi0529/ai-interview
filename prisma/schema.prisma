@@ -147,13 +147,22 @@ model Job {
 }
 
 model Application {
-  id          String            @id @default(uuid())
+  id                String              @id @default(uuid())
   // resumeUrl   String
-  status      ApplicationStatus @default(Applied)
-  jobId       String
-  job         Job               @relation(fields: [jobId], references: [id])
-  applicantId String
-  applicant   User              @relation(fields: [applicantId], references: [id])
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  status            ApplicationStatus   @default(Applied)
+  jobId             String
+  job               Job                 @relation(fields: [jobId], references: [id])
+  applicantId       String
+  applicant         User                @relation(fields: [applicantId], references: [id])
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  InterviewQuestion InterviewQuestion[]
+}
+
+model InterviewQuestion {
+  id            String      @id @default(uuid())
+  application   Application @relation(fields: [applicationId], references: [id])
+  applicationId String
+  questions     String
+  createdAt     DateTime    @default(now())
 }
