@@ -5,7 +5,6 @@ import { useUser } from "@clerk/nextjs";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 
 const EXPERIENCE_LABELS: Record<string, string> = {
   Fresher: "Fresher",
@@ -57,10 +56,6 @@ export default function JobDetail() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleApply = async () => {
-    // TODO
   };
 
   if (loading) return <div>Loading...</div>;
@@ -150,17 +145,9 @@ export default function JobDetail() {
         </div>
       )}
       {role === "applicant" && (
-        <form onSubmit={handleApply} className="flex flex-col gap-2 mt-4">
-          <label className="font-medium">Upload Resume:</label>
-          <Input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            onChange={(e) => setResume(e.target.files?.[0] || null)}
-          />
-          <Button type="submit" disabled={applying}>
-            {applying ? "Applying..." : "Apply"}
-          </Button>
-        </form>
+        <Button type="submit" disabled={applying}>
+          {applying ? "Applying..." : "Apply"}
+        </Button>
       )}
     </div>
   );
