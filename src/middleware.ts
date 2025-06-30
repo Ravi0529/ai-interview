@@ -46,6 +46,10 @@ export default clerkMiddleware(async (auth, req) => {
       //     return NextResponse.redirect(new URL("/applicant/profile", req.url));
       //   }
 
+      if (pathname === "/start" && role === "recruiter") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+
       if (
         pathname === "/" ||
         pathname === "/signin" ||

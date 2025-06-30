@@ -145,7 +145,11 @@ export default function JobDetail() {
         </div>
       )}
       {role === "applicant" && (
-        <Button type="submit" disabled={applying}>
+        <Button
+          type="submit"
+          disabled={applying}
+          onClick={() => router.replace(`/start/${jobId}`)}
+        >
           {applying ? "Applying..." : "Apply"}
         </Button>
       )}
