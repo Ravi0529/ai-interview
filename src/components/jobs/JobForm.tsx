@@ -61,7 +61,7 @@ export default function JobForm({
       } else {
         toast.error("AI did not return a rephrased description.");
       }
-    } catch (err) {
+    } catch (error) {
       toast.error("Failed to rephrase description with AI.");
     } finally {
       setRephrasing(false);
