@@ -5,10 +5,10 @@ import prisma from "@/lib/prisma";
 // GET single job (selected by the applicant)
 export const GET = async (
   req: NextRequest,
-  context: { params: { jobId: string } }
+  { params }: { params: { jobId: string } }
 ) => {
-  const { params } = await context;
   const userId = (await auth()).userId;
+  const { jobId } = await params;
 
   if (!userId) {
     return NextResponse.json(
@@ -24,7 +24,7 @@ export const GET = async (
   try {
     const singleJobPost = await prisma.job.findUnique({
       where: {
-        id: params.jobId,
+        id: jobId,
       },
       include: {
         createdBy: {
