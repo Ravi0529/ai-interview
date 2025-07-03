@@ -115,7 +115,10 @@ export default function StartPage({
     formData.append("resume", resume);
 
     try {
-      const response = await axios.post(`/api/jobs/${jobId}/upload`, formData);
+      const response = await axios.post(
+        `/api/jobs/${jobId}/upload-resume`,
+        formData
+      );
       if (response.data && response.data.success) {
         toast.success("Resume saved successfully!");
       } else {
