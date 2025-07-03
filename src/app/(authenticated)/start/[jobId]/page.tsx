@@ -114,9 +114,18 @@ export default function StartPage({
     const formData = new FormData();
     formData.append("resume", resume);
 
-    await axios.post(`/api/jobs/${jobId}/upload`, { resume });
+    try {
+      const response = await axios.post(`/api/jobs/${jobId}/upload`, formData);
+      if (response.data && response.data.success) {
+        toast.success("Resume saved successfully!");
+      } else {
+        toast.error(response.data?.error || "Failed to save resume summary.");
+      }
+    } catch (error) {
+      toast.error("Failed to upload and process resume.");
+    }
 
-    // TODO: POP UP BUTTON for instructions
+    // TODO: Pop up button for instructions
   };
 
   return (

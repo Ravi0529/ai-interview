@@ -163,6 +163,16 @@ model InterviewQuestion {
   id            String      @id @default(uuid())
   application   Application @relation(fields: [applicationId], references: [id])
   applicationId String
-  questions     String
+  resumeSummary String
+  qnas          QnA[]
   createdAt     DateTime    @default(now())
+}
+
+model QnA {
+  id                  String            @id @default(uuid())
+  interviewQuestion   InterviewQuestion @relation(fields: [interviewQuestionId], references: [id])
+  interviewQuestionId String
+  question            String
+  answer              String
+  createdAt           DateTime          @default(now())
 }
