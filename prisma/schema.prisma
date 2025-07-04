@@ -147,19 +147,19 @@ model Job {
 }
 
 model Application {
-  id                String              @id @default(uuid())
+  id            String            @id @default(uuid())
   // resumeUrl   String
-  status            ApplicationStatus   @default(Applied)
-  jobId             String
-  job               Job                 @relation(fields: [jobId], references: [id])
-  applicantId       String
-  applicant         User                @relation(fields: [applicantId], references: [id])
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  InterviewQuestion InterviewQuestion[]
+  status        ApplicationStatus @default(Applied)
+  jobId         String
+  job           Job               @relation(fields: [jobId], references: [id])
+  applicantId   String
+  applicant     User              @relation(fields: [applicantId], references: [id])
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  InterviewInfo InterviewInfo[]
 }
 
-model InterviewQuestion {
+model InterviewInfo {
   id            String      @id @default(uuid())
   application   Application @relation(fields: [applicationId], references: [id])
   applicationId String
@@ -169,10 +169,10 @@ model InterviewQuestion {
 }
 
 model QnA {
-  id                  String            @id @default(uuid())
-  interviewQuestion   InterviewQuestion @relation(fields: [interviewQuestionId], references: [id])
-  interviewQuestionId String
-  question            String
-  answer              String
-  createdAt           DateTime          @default(now())
+  id              String        @id @default(uuid())
+  interviewInfo   InterviewInfo @relation(fields: [interviewInfoId], references: [id])
+  interviewInfoId String
+  question        String
+  answer          String
+  createdAt       DateTime      @default(now())
 }
