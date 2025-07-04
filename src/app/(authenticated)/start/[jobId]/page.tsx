@@ -45,6 +45,7 @@ export default function StartPage({
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleMicCheck = async () => {
     setMicError(null);
@@ -124,6 +125,7 @@ export default function StartPage({
   const handleStartInterview = async () => {
     if (!resume)
       return toast.error("Please add your Resume for the Interview.");
+    setLoading(true);
     const formData = new FormData();
     formData.append("resume", resume);
 
@@ -140,13 +142,14 @@ export default function StartPage({
     } catch (error) {
       toast.error("Failed to upload and process resume.");
     }
-
+    setLoading(false);
     setDialogOpen(true);
   };
 
   const handleDialogStartInterview = () => {
-    router.push(`/start/${jobId}/interview`);
+    setLoading(true);
     setDialogOpen(false);
+    router.push(`/start/${jobId}/interview`);
   };
 
   return (
@@ -179,8 +182,12 @@ export default function StartPage({
             </ul>
           </DialogHeader>
           <DialogFooter>
-            <Button className="w-full" onClick={handleDialogStartInterview}>
-              Start Interview
+            <Button
+              className="w-full"
+              onClick={handleDialogStartInterview}
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Start Interview"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -254,10 +261,10 @@ export default function StartPage({
 
               <Button
                 className="w-full"
-                disabled={!micChecked || !camChecked || !resume}
+                disabled={!micChecked || !camChecked || !resume || loading}
                 onClick={handleStartInterview}
               >
-                Submit
+                {loading ? "Submitting..." : "Submit"}
               </Button>
             </CardContent>
           </Card>
