@@ -11,6 +11,14 @@ import { Progress } from "@/components/ui/progress";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import axios from "axios";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function StartPage({
   params,
@@ -35,6 +43,8 @@ export default function StartPage({
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleMicCheck = async () => {
     setMicError(null);
@@ -90,7 +100,10 @@ export default function StartPage({
       if (audioRef.current) {
         audioRef.current.getTracks().forEach((track) => track.stop());
       }
-      if (audioContextRef.current) {
+      if (
+        audioContextRef.current &&
+        audioContextRef.current.state === "running"
+      ) {
         audioContextRef.current.close();
       }
       if (videoStream) {
@@ -128,83 +141,128 @@ export default function StartPage({
       toast.error("Failed to upload and process resume.");
     }
 
-    // TODO: Pop up button for instructions
+    setDialogOpen(true);
+  };
+
+  const handleDialogStartInterview = () => {
+    router.push(`/start/${jobId}/interview`);
+    setDialogOpen(false);
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Prepare for Your Interview</CardTitle>
-          <p className="text-gray-500 text-sm">
-            Please check your microphone and camera, and upload your resume
-            before starting.
-          </p>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Button
-              variant={micChecked ? "secondary" : "default"}
-              onClick={handleMicCheck}
-              disabled={micChecked || micChecking}
-            >
-              {micChecked ? "Microphone Ready" : "Check Microphone"}
+    <>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Interview Instructions</DialogTitle>
+            <DialogDescription>
+              Please read the following instructions carefully before starting
+              your interview.
+            </DialogDescription>
+            <ul className="list-disc pl-5 space-y-1 mt-2">
+              <li>
+                The interview will last <b>5 minutes</b>.
+              </li>
+              <li>
+                An <b>AI interviewer</b> will ask you questions based on your
+                resume and the job description.
+              </li>
+              <li>Your responses will be recorded and analyzed.</li>
+              <li>
+                After the interview, you will receive <b>feedback</b> and
+                suggestions for improvement.
+              </li>
+              <li>
+                Make sure your microphone and camera are working, and your
+                resume is uploaded.
+              </li>
+            </ul>
+          </DialogHeader>
+          <DialogFooter>
+            <Button className="w-full" onClick={handleDialogStartInterview}>
+              Start Interview
             </Button>
-            {micError && <p className="text-red-600 text-sm">{micError}</p>}
-            {micChecking && (
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Voice Level</p>
-                <Progress value={Math.min(100, (audioLevel / 256) * 100)} />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {!dialogOpen && (
+        <div className="max-w-2xl mx-auto p-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Prepare for Your Interview</CardTitle>
+              <p className="text-gray-500 text-sm">
+                Please check your microphone and camera, and upload your resume
+                before starting.
+              </p>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Button
+                  variant={micChecked ? "secondary" : "default"}
+                  onClick={handleMicCheck}
+                  disabled={micChecked || micChecking}
+                >
+                  {micChecked ? "Microphone Ready" : "Check Microphone"}
+                </Button>
+                {micError && <p className="text-red-600 text-sm">{micError}</p>}
+                {micChecking && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Voice Level</p>
+                    <Progress value={Math.min(100, (audioLevel / 256) * 100)} />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <Button
-              variant={camChecked ? "secondary" : "default"}
-              onClick={handleCamCheck}
-              disabled={camChecked}
-            >
-              {camChecked ? "Camera Ready" : "Check Camera"}
-            </Button>
-            {camError && <p className="text-red-600 text-sm">{camError}</p>}
-            {videoStream && (
-              <div className="mt-2">
-                <AspectRatio ratio={16 / 9}>
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    muted
-                    className="rounded border w-full h-full object-cover"
-                  />
-                </AspectRatio>
+              <div className="space-y-2">
+                <Button
+                  variant={camChecked ? "secondary" : "default"}
+                  onClick={handleCamCheck}
+                  disabled={camChecked}
+                >
+                  {camChecked ? "Camera Ready" : "Check Camera"}
+                </Button>
+                {camError && <p className="text-red-600 text-sm">{camError}</p>}
+                {videoStream && (
+                  <div className="mt-2">
+                    <AspectRatio ratio={16 / 9}>
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        muted
+                        className="rounded border w-full h-full object-cover"
+                      />
+                    </AspectRatio>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="resume">Upload Your Resume</Label>
-            <Input
-              id="resume"
-              type="file"
-              accept=".pdf"
-              onChange={handleResumeUpload}
-            />
-            {resume && (
-              <p className="text-green-700 text-sm">Selected: {resume.name}</p>
-            )}
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="resume">Upload Your Resume</Label>
+                <Input
+                  id="resume"
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleResumeUpload}
+                />
+                {resume && (
+                  <p className="text-green-700 text-sm">
+                    Selected: {resume.name}
+                  </p>
+                )}
+              </div>
 
-          <Button
-            className="w-full"
-            disabled={!micChecked || !camChecked || !resume}
-            onClick={handleStartInterview}
-          >
-            Start Interview
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+              <Button
+                className="w-full"
+                disabled={!micChecked || !camChecked || !resume}
+                onClick={handleStartInterview}
+              >
+                Submit
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </>
   );
 }
