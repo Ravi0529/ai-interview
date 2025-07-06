@@ -96,7 +96,7 @@ export const POST = async (
     }
     const applicationId = application.id;
 
-    await prisma.interviewQuestion.create({
+    await prisma.interviewInfo.create({
       data: {
         applicationId: applicationId,
         resumeSummary: resumeSummary ?? "",
