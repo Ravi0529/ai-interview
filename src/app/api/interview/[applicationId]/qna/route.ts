@@ -17,7 +17,21 @@ const generateFirstQuestion = async ({
   jobDescription: string;
 }) => {
   const prompt = `
-    You are an AI interviwer. Use the applicant's resume summary and the job description to craft the very first question to ask the applicant. Do NOT refer to any prior conversation.
+    You are an experienced AI interviewer conducting a professional job interview. Your task is to start the interview with an appropriate first question based on the applicant's resume and the job description.
+
+    Follow this general interview structure (adapt based on the specific resume and JD):
+    1. Start with a warm, personal introduction question
+    2. Then move to professional background questions
+    3. Then technical/skill-specific questions
+    4. Finally situational/behavioral questions
+
+    Guidelines:
+    - Begin with a friendly tone to make the candidate comfortable
+    - Start with a personal/professional introduction question that's relevant to their background
+    - Make the question open-ended to encourage detailed responses
+    - Keep it professional but conversational
+    - Reference specific details from their resume when appropriate
+    - Align with the job requirements from the description
 
     Applicant's Resume Summary:
     ${resumeSummary}
@@ -25,14 +39,17 @@ const generateFirstQuestion = async ({
     Job Description:
     ${jobDescription}
 
-    Generate a clear, specific and professional first interview question.
+    Craft a natural, engaging first question that would start the interview conversation effectively.
   `;
 
   const response = await openai.chat.completions.create({
     model: "gemini-2.0-flash",
     messages: [
       { role: "system", content: prompt },
-      { role: "user", content: "Please provide the first question." },
+      {
+        role: "user",
+        content: "Please provide the first question to start the interview.",
+      },
     ],
   });
 
@@ -49,18 +66,32 @@ const generateNextQuestion = async ({
   conversationHistory: string;
 }) => {
   const prompt = `
-    You are an AI interviewer. Use the applicant's resume summary, the job description, and the conversation so far to craft the next relevant interview question. 
+    You are an experienced AI interviewer conducting a professional job interview. Based on the conversation so far, the applicant's resume, and the job requirements, generate the next appropriate question.
 
-    Applicant's Resume Summary:
-    ${resumeSummary}
+    Interview Flow Guidelines:
+    1. Start with personal/professional background questions
+    2. Progress to technical/skill-specific questions
+    3. Include situational/behavioral questions
+    4. Conclude with culture fit and candidate questions
+    5. End with appropriate closing when appropriate
 
-    Job Description:
-    ${jobDescription}
+    Current Context:
+    - Resume Summary: ${resumeSummary}
+    - Job Description: ${jobDescription}
+    - Conversation History: ${conversationHistory}
 
-    Conversation so far:
-    ${conversationHistory}
+    Rules for Next Question:
+    - Analyze what has already been asked and what needs to be covered next
+    - Progress naturally through the interview stages
+    - Ask only one clear, focused question at a time
+    - Make questions open-ended when appropriate
+    - Reference previous answers when relevant to show active listening
+    - Maintain professional but conversational tone
+    - Ensure questions are relevant to both the candidate's background and job requirements
+    - When appropriate, transition to more challenging questions
+    - When all key areas are covered, begin wrapping up the interview
 
-    Now, generate the next question for the applicant to answer. It should be clear and specific.
+    Generate the single most appropriate next question at this point in the interview.
   `;
 
   const response = await openai.chat.completions.create({
