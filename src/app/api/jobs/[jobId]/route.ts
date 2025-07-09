@@ -8,7 +8,7 @@ export const GET = async (
   { params }: { params: { jobId: string } }
 ) => {
   const userId = (await auth()).userId;
-  const { jobId } = await params;
+  const { jobId } = params;
 
   if (!userId) {
     return NextResponse.json(
