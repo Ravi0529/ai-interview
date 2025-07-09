@@ -9,6 +9,71 @@ const openai = new OpenAI({
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
 });
 
+const generateFirstQuestion = async ({
+  resumeSummary,
+  jobDescription,
+}: {
+  resumeSummary: string;
+  jobDescription: string;
+}) => {
+  const prompt = `
+    You are an AI interviwer. Use the applicant's resume summary and the job description to craft the very first question to ask the applicant. Do NOT refer to any prior conversation.
+
+    Applicant's Resume Summary:
+    ${resumeSummary}
+
+    Job Description:
+    ${jobDescription}
+
+    Generate a clear, specific and professional first interview question.
+  `;
+
+  const response = await openai.chat.completions.create({
+    model: "gemini-2.0-flash",
+    messages: [
+      { role: "system", content: prompt },
+      { role: "user", content: "Please provide the first question." },
+    ],
+  });
+
+  return response.choices[0].message.content?.trim();
+};
+
+const generateNextQuestion = async ({
+  resumeSummary,
+  jobDescription,
+  conversationHistory,
+}: {
+  resumeSummary: string;
+  jobDescription: string;
+  conversationHistory: string;
+}) => {
+  const prompt = `
+    You are an AI interviewer. Use the applicant's resume summary, the job description, and the conversation so far to craft the next relevant interview question. 
+
+    Applicant's Resume Summary:
+    ${resumeSummary}
+
+    Job Description:
+    ${jobDescription}
+
+    Conversation so far:
+    ${conversationHistory}
+
+    Now, generate the next question for the applicant to answer. It should be clear and specific.
+  `;
+
+  const response = await openai.chat.completions.create({
+    model: "gemini-2.0-flash",
+    messages: [
+      { role: "system", content: prompt },
+      { role: "user", content: "Please provide the next question." },
+    ],
+  });
+
+  return response.choices[0].message.content?.trim();
+};
+
 export const GET = async (
   req: NextRequest,
   { params }: { params: { applicationId: string } }
@@ -16,8 +81,7 @@ export const GET = async (
   const { applicationId } = await params;
 
   try {
-    // find interviewInfo for this application
-    const interviewInfo = await prisma.interviewInfo.findFirst({
+    let interviewInfo = await prisma.interviewInfo.findFirst({
       where: {
         applicationId,
       },
@@ -25,6 +89,11 @@ export const GET = async (
         qnas: {
           orderBy: {
             createdAt: "asc",
+          },
+        },
+        application: {
+          include: {
+            job: true,
           },
         },
       },
@@ -41,13 +110,56 @@ export const GET = async (
       );
     }
 
-    // determine pending question
-    const currentQ =
-      interviewInfo.qnas.find((qna) => !qna.answer)?.question ?? null;
+    if (interviewInfo.qnas.length === 0) {
+      const firstQuestion = await generateFirstQuestion({
+        resumeSummary: interviewInfo.resumeSummary,
+        jobDescription: interviewInfo.application.job.description,
+      });
+
+      if (!firstQuestion) {
+        return NextResponse.json(
+          {
+            error: "Failed to generate first question",
+          },
+          {
+            status: 500,
+          }
+        );
+      }
+
+      await prisma.qnA.create({
+        data: {
+          interviewInfoId: interviewInfo.id,
+          question: firstQuestion,
+          answer: "",
+        },
+      });
+
+      interviewInfo = await prisma.interviewInfo.findFirst({
+        where: {
+          applicationId,
+        },
+        include: {
+          qnas: {
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
+          application: {
+            include: {
+              job: true,
+            },
+          },
+        },
+      });
+    }
+
+    const currentQuestion =
+      interviewInfo?.qnas.find((qna) => !qna.answer)?.question ?? null;
 
     return NextResponse.json({
-      qnas: interviewInfo.qnas,
-      currentQuestion: currentQ,
+      qnas: interviewInfo?.qnas,
+      currentQuestion: currentQuestion,
     });
   } catch (error) {
     console.error("Interview QnA GET error:", error);
@@ -77,13 +189,12 @@ export const POST = async (
           error: "Answer is required",
         },
         {
-          status: 400,
+          status: 404,
         }
       );
     }
 
-    // finding interviewInfo for this application
-    const interviewInfo = await prisma.interviewInfo.findFirst({
+    let interviewInfo = await prisma.interviewInfo.findFirst({
       where: {
         applicationId,
       },
@@ -91,6 +202,11 @@ export const POST = async (
         qnas: {
           orderBy: {
             createdAt: "asc",
+          },
+        },
+        application: {
+          include: {
+            job: true,
           },
         },
       },
@@ -108,67 +224,22 @@ export const POST = async (
     }
 
     const interviewInfoId = interviewInfo.id;
+    const lastQnA = interviewInfo.qnas[interviewInfo.qnas.length - 1];
 
-    // find the last question (context for next que)
-    const lastQuestion = interviewInfo.qnas[interviewInfo.qnas.length - 1];
-
-    // getting resume summary and job desc for prompt
-    const application = await prisma.application.findUnique({
-      where: {
-        id: applicationId,
-      },
-      include: {
-        job: true,
-      },
-    });
-
-    if (!application) {
-      return NextResponse.json(
-        {
-          error: "Application not found",
-        },
-        {
-          status: 404,
-        }
-      );
-    }
-
-    if (lastQuestion && !lastQuestion.answer) {
-      await prisma.qnA.update({
-        where: {
-          id: lastQuestion.id,
-        },
-        data: {
-          answer,
-        },
+    if (interviewInfo.qnas.length === 0) {
+      const firstQuestion = await generateFirstQuestion({
+        resumeSummary: interviewInfo.resumeSummary,
+        jobDescription: interviewInfo.application.job.description,
       });
-    } else {
-      const firstPrompt = `
-        You are an AI interviewer. Use the applicant's resume summary and the job description to craft the very first question to ask the applicant. Do NOT refer to any prior conversation.
-
-        Applicant's Resume Summary:
-        ${interviewInfo.resumeSummary}
-
-        Job Description:
-        ${application.job.description}
-
-        Generate a clear, specific, and professional first interview question.
-        `;
-
-      const firstResponse = await openai.chat.completions.create({
-        model: "gemini-2.0-flash",
-        messages: [
-          { role: "system", content: firstPrompt },
-          { role: "user", content: "Please provide the first question." },
-        ],
-      });
-
-      const firstQuestion = firstResponse.choices[0].message.content?.trim();
 
       if (!firstQuestion) {
         return NextResponse.json(
-          { error: "Failed to generate first question" },
-          { status: 500 }
+          {
+            error: "Failed to generate first question",
+          },
+          {
+            status: 500,
+          }
         );
       }
 
@@ -187,40 +258,49 @@ export const POST = async (
       });
     }
 
-    // coversation history for context
-    const conversationHistory = interviewInfo.qnas
-      .map((qna) => `Q: ${qna.question}\nA: ${qna.answer ?? "(pending)"}`)
-      .join("\n");
+    if (lastQnA && !lastQnA.answer) {
+      await prisma.qnA.update({
+        where: {
+          id: lastQnA.id,
+        },
+        data: {
+          answer,
+        },
+      });
+    } else {
+      return NextResponse.json(
+        {
+          error: "No pending question to answer",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
 
-    const prompt = `
-        You are an AI interviewer. Use the applicant's resume summary, the job description, and the conversation so far to craft the next relevant interview question. 
-
-        Applicant's Resume Summary:
-        ${interviewInfo.resumeSummary}
-
-        Job Description:
-        ${application.job.description}
-
-        Conversation so far:
-        ${conversationHistory}
-
-        Now, generate the next question for the applicant to answer. It should be clear and specific.
-    `;
-
-    const response = await openai.chat.completions.create({
-      model: "gemini-2.0-flash",
-      messages: [
-        { role: "system", content: prompt },
-        { role: "user", content: "Please provide the next question." },
-      ],
+    const updatedQnAs = await prisma.qnA.findMany({
+      where: {
+        interviewInfoId,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
     });
 
-    const nextQuestion = response.choices[0].message.content?.trim();
+    const conversationHistory = updatedQnAs
+      .map((qna) => `Q. ${qna.question}\nA. ${qna.answer} || "(pending)"`)
+      .join("\n");
+
+    const nextQuestion = await generateNextQuestion({
+      resumeSummary: interviewInfo.resumeSummary,
+      jobDescription: interviewInfo.application.job.description,
+      conversationHistory,
+    });
 
     if (!nextQuestion) {
       return NextResponse.json(
         {
-          error: "Failed to generate question",
+          error: "Failed to generate next question",
         },
         {
           status: 500,
@@ -242,7 +322,7 @@ export const POST = async (
       qnaId: newQnA.id,
     });
   } catch (error) {
-    console.error("Interview QnA error:", error);
+    console.error("Interview QnA POST error:", error);
     return NextResponse.json(
       {
         error: "Internal server error",
