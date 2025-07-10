@@ -19,6 +19,8 @@ const generateFirstQuestion = async ({
   const prompt = `
     You are an experienced AI interviewer conducting a professional job interview. Your task is to start the interview with an appropriate first question based on the applicant's resume and the job description.
 
+    -- TRY TO MAKE THE QUESTION SHORT, DONT ELABORATE MUCH IF NOT REQUIRED
+
     Follow this general interview structure (adapt based on the specific resume and JD):
     1. Start with a warm, personal introduction question
     2. Then move to professional background questions
@@ -67,6 +69,8 @@ const generateNextQuestion = async ({
 }) => {
   const prompt = `
     You are an experienced AI interviewer conducting a professional job interview. Based on the conversation so far, the applicant's resume, and the job requirements, generate the next appropriate question.
+
+    -- TRY TO MAKE THE QUESTION SHORT, DONT ELABORATE MUCH IF NOT REQUIRED
 
     Interview Flow Guidelines:
     1. Start with personal/professional background questions
