@@ -8,18 +8,11 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 import { toast } from "sonner";
 
-interface QnA {
-  id: string;
-  question: string;
-  answer: string | null;
-}
-
 export default function QnASection({
   applicationId,
 }: {
   applicationId: string;
 }) {
-  const [qnas, setQnas] = useState<QnA[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -57,33 +50,26 @@ export default function QnASection({
     });
   };
 
-  // Fetch initial QnA history
-  const fetchQnAHistory = async () => {
+  // Remove QnA history fetch and filtering logic, only fetch current question
+  const fetchCurrentQuestion = async () => {
     try {
       setLoading(true);
       const res = await axios.get(`/api/interview/${applicationId}/qna`);
-
-      // Update QnAs with proper filtering
-      const validQnAs = res.data.qnas.filter(
-        (qna: QnA) => qna.answer && qna.answer.trim() !== ""
-      );
-      setQnas(validQnAs);
-
-      // Set current question (the one without an answer)
       if (res.data.currentQuestion) {
         setCurrentQuestion(res.data.currentQuestion);
+      } else {
+        setCurrentQuestion("");
       }
     } catch (error) {
-      console.error("Failed to load Q&A history:", error);
-      setError("Failed to load Q&A history.");
+      console.error("Failed to load question:", error);
+      setError("Failed to load question.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Initial fetch
   useEffect(() => {
-    fetchQnAHistory();
+    fetchCurrentQuestion();
   }, [applicationId]);
 
   // Auto-listen when question appears (but not during processing)
@@ -146,7 +132,7 @@ export default function QnASection({
     }, 5000);
   };
 
-  // Handle submission
+  // Remove QnA history update logic from handleStopAndSend
   const handleStopAndSend = async () => {
     if (!transcript.trim() || loading || isProcessing) return;
 
@@ -167,19 +153,8 @@ export default function QnASection({
       console.log("Response from backend:", res.data);
 
       if (res.data.success) {
-        // Add the answered question to history
-        setQnas((prev) => [
-          ...prev,
-          {
-            id: res.data.qnaId || crypto.randomUUID(),
-            question: currentQuestion,
-            answer: transcript.trim(),
-          },
-        ]);
-
         // Reset transcript first
         resetTranscript();
-
         // Update the new question
         if (res.data.question) {
           setCurrentQuestion(res.data.question);
@@ -230,24 +205,6 @@ export default function QnASection({
           </button>
         </div>
       )}
-
-      {/* Q&A History */}
-      <div className="space-y-3 max-h-[300px] overflow-y-auto">
-        {qnas.length > 0 ? (
-          qnas.map((item, index) => (
-            <div key={item.id || index} className="p-2 rounded-md border">
-              <div className="font-bold text-foreground">
-                Q: {item.question}
-              </div>
-              <div className="text-muted-foreground mt-1">
-                A: {item.answer || "[No answer yet]"}
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-muted-foreground">No Q&A history yet.</div>
-        )}
-      </div>
 
       {/* Current Question */}
       {currentQuestion && (
@@ -322,7 +279,6 @@ export default function QnASection({
           <div>Processing: {isProcessing ? "Yes" : "No"}</div>
           <div>Current Question: {currentQuestion ? "Yes" : "No"}</div>
           <div>Transcript: {transcript || "None"}</div>
-          <div>QnAs Count: {qnas.length}</div>
           <div>Countdown: {countdown !== null ? countdown : "Inactive"}</div>
         </div>
       )}
