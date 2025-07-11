@@ -17,19 +17,20 @@ const generateFirstQuestion = async ({
   jobDescription: string;
 }) => {
   const prompt = `
-    You are an experienced AI interviewer conducting a professional job interview. Your task is to start the interview with an appropriate first question based on the applicant's resume and the job description.
+    You are an experienced AI interviewer conducting a professional job interview. The interview will last for 5 minutes only. Your task is to start the interview with an appropriate first question based on the applicant's resume and the job description.
 
     -- TRY TO MAKE THE QUESTION SHORT, DONT ELABORATE MUCH IF NOT REQUIRED
 
-    Follow this general interview structure (adapt based on the specific resume and JD):
-    1. Start with a warm, personal introduction question
-    2. Then move to professional background questions
+    Interview Structure (5 minutes):
+    1. Start with a warm, personal introduction question (e.g., "Can you tell me a bit about yourself?")
+    2. Move to professional background questions
     3. Then technical/skill-specific questions
-    4. Finally situational/behavioral questions
+    4. Finally, situational/behavioral questions
+    5. End with a closing question when time is up (e.g., "Thank you for your time. Do you have any questions for us before we conclude?")
 
     Guidelines:
-    - Begin with a friendly tone to make the candidate comfortable
-    - Start with a personal/professional introduction question that's relevant to their background
+    - The interview is strictly 5 minutes. Begin and end accordingly.
+    - Start with a friendly tone to make the candidate comfortable
     - Make the question open-ended to encourage detailed responses
     - Keep it professional but conversational
     - Reference specific details from their resume when appropriate
@@ -68,16 +69,16 @@ const generateNextQuestion = async ({
   conversationHistory: string;
 }) => {
   const prompt = `
-    You are an experienced AI interviewer conducting a professional job interview. Based on the conversation so far, the applicant's resume, and the job requirements, generate the next appropriate question.
+    You are an experienced AI interviewer conducting a professional job interview. The interview will last for 5 minutes only. Based on the conversation so far, the applicant's resume, and the job requirements, generate the next appropriate question.
 
     -- TRY TO MAKE THE QUESTION SHORT, DONT ELABORATE MUCH IF NOT REQUIRED
 
-    Interview Flow Guidelines:
+    Interview Flow Guidelines (5 minutes):
     1. Start with personal/professional background questions
     2. Progress to technical/skill-specific questions
     3. Include situational/behavioral questions
     4. Conclude with culture fit and candidate questions
-    5. End with appropriate closing when appropriate
+    5. End with an appropriate closing when time is up (e.g., "Thank you for your time. Do you have any questions for us before we conclude?")
 
     Current Context:
     - Resume Summary: ${resumeSummary}
@@ -85,6 +86,7 @@ const generateNextQuestion = async ({
     - Conversation History: ${conversationHistory}
 
     Rules for Next Question:
+    - The interview is strictly 5 minutes. If time is up, end the interview with a closing statement.
     - Analyze what has already been asked and what needs to be covered next
     - Progress naturally through the interview stages
     - Ask only one clear, focused question at a time
@@ -145,10 +147,40 @@ export const GET = async (
       );
     }
 
-    if (interviewInfo.qnas.length === 0) {
+    // --- 5 MINUTE TIMER ENFORCEMENT ---
+    // If no startTime, set it now
+    if (!interviewInfo.startTime) {
+      await prisma.interviewInfo.update({
+        where: { id: interviewInfo.id },
+        data: { startTime: new Date() },
+      });
+      interviewInfo = await prisma.interviewInfo.findFirst({
+        where: { applicationId },
+        include: {
+          qnas: { orderBy: { createdAt: "asc" } },
+          application: { include: { job: true } },
+        },
+      });
+    }
+    const startTime = new Date(interviewInfo!.startTime!);
+    const now = new Date();
+    const elapsed = (now.getTime() - startTime.getTime()) / 1000; // seconds
+    const interviewOver = elapsed >= 300;
+    // --- END TIMER ENFORCEMENT ---
+
+    if (interviewOver) {
+      return NextResponse.json({
+        interviewOver: true,
+        timeLeft: 0,
+        currentQuestion: null,
+        qnas: interviewInfo!.qnas,
+      });
+    }
+
+    if (interviewInfo!.qnas.length === 0) {
       const firstQuestion = await generateFirstQuestion({
-        resumeSummary: interviewInfo.resumeSummary,
-        jobDescription: interviewInfo.application.job.description,
+        resumeSummary: interviewInfo!.resumeSummary,
+        jobDescription: interviewInfo!.application.job.description,
       });
 
       if (!firstQuestion) {
@@ -164,7 +196,7 @@ export const GET = async (
 
       await prisma.qnA.create({
         data: {
-          interviewInfoId: interviewInfo.id,
+          interviewInfoId: interviewInfo!.id,
           question: firstQuestion,
           answer: "",
         },
@@ -195,6 +227,8 @@ export const GET = async (
     return NextResponse.json({
       qnas: interviewInfo?.qnas,
       currentQuestion: currentQuestion,
+      interviewOver: false,
+      timeLeft: Math.max(0, 300 - Math.floor(elapsed)),
     });
   } catch (error) {
     console.error("Interview QnA GET error:", error);
@@ -258,13 +292,41 @@ export const POST = async (
       );
     }
 
-    const interviewInfoId = interviewInfo.id;
-    const lastQnA = interviewInfo.qnas[interviewInfo.qnas.length - 1];
+    // --- 5 MINUTE TIMER ENFORCEMENT ---
+    if (!interviewInfo.startTime) {
+      await prisma.interviewInfo.update({
+        where: { id: interviewInfo.id },
+        data: { startTime: new Date() },
+      });
+      interviewInfo = await prisma.interviewInfo.findFirst({
+        where: { applicationId },
+        include: {
+          qnas: { orderBy: { createdAt: "asc" } },
+          application: { include: { job: true } },
+        },
+      });
+    }
+    const startTime = new Date(interviewInfo!.startTime!);
+    const now = new Date();
+    const elapsed = (now.getTime() - startTime.getTime()) / 1000; // seconds
+    const interviewOver = elapsed >= 300;
+    if (interviewOver) {
+      return NextResponse.json({
+        interviewOver: true,
+        timeLeft: 0,
+        success: false,
+        error: "Interview time is over.",
+      });
+    }
+    // --- END TIMER ENFORCEMENT ---
 
-    if (interviewInfo.qnas.length === 0) {
+    const interviewInfoId = interviewInfo!.id;
+    const lastQnA = interviewInfo!.qnas[interviewInfo!.qnas.length - 1];
+
+    if (interviewInfo!.qnas.length === 0) {
       const firstQuestion = await generateFirstQuestion({
-        resumeSummary: interviewInfo.resumeSummary,
-        jobDescription: interviewInfo.application.job.description,
+        resumeSummary: interviewInfo!.resumeSummary,
+        jobDescription: interviewInfo!.application.job.description,
       });
 
       if (!firstQuestion) {
@@ -290,6 +352,8 @@ export const POST = async (
         success: true,
         question: firstQuestion,
         qnaId: newQnA.id,
+        interviewOver: false,
+        timeLeft: Math.max(0, 300 - Math.floor(elapsed)),
       });
     }
 
@@ -327,8 +391,8 @@ export const POST = async (
       .join("\n");
 
     const nextQuestion = await generateNextQuestion({
-      resumeSummary: interviewInfo.resumeSummary,
-      jobDescription: interviewInfo.application.job.description,
+      resumeSummary: interviewInfo!.resumeSummary,
+      jobDescription: interviewInfo!.application.job.description,
       conversationHistory,
     });
 
@@ -355,6 +419,8 @@ export const POST = async (
       success: true,
       question: nextQuestion,
       qnaId: newQnA.id,
+      interviewOver: false,
+      timeLeft: Math.max(0, 300 - Math.floor(elapsed)),
     });
   } catch (error) {
     console.error("Interview QnA POST error:", error);

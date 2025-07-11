@@ -71,7 +71,7 @@ export default function InterviewPage() {
       </div>
       <div className="w-full md:w-2/5 flex flex-col gap-6">
         <AIFeed />
-        <QnASection applicationId={applicationId} />
+        <QnASection applicationId={applicationId} jobId={jobId} />
       </div>
     </div>
   );

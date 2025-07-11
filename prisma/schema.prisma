@@ -166,6 +166,7 @@ model InterviewInfo {
   resumeSummary String
   qnas          QnA[]
   createdAt     DateTime    @default(now())
+  startTime     DateTime?
 }
 
 model QnA {

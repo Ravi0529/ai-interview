@@ -7,11 +7,22 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../ui/dialog";
 
 export default function QnASection({
   applicationId,
+  jobId,
 }: {
   applicationId: string;
+  jobId: string;
 }) {
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -20,6 +31,9 @@ export default function QnASection({
   const [countdown, setCountdown] = useState<number | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
   const submissionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [timer, setTimer] = useState(300); // 5 minutes in seconds
+  const [interviewOver, setInterviewOver] = useState(false);
+  const router = useRouter();
 
   const {
     transcript,
@@ -113,6 +127,20 @@ export default function QnASection({
     };
   }, [transcript, listening, currentQuestion, isProcessing]);
 
+  // Timer effect
+  useEffect(() => {
+    if (interviewOver) return;
+    if (timer <= 0) {
+      setInterviewOver(true);
+      SpeechRecognition.stopListening();
+      return;
+    }
+    const interval = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timer, interviewOver]);
+
   const startCountdown = () => {
     setCountdown(5); // Start countdown from 5 seconds
 
@@ -132,9 +160,9 @@ export default function QnASection({
     }, 5000);
   };
 
-  // Remove QnA history update logic from handleStopAndSend
+  // Prevent answering if interview is over
   const handleStopAndSend = async () => {
-    if (!transcript.trim() || loading || isProcessing) return;
+    if (!transcript.trim() || loading || isProcessing || interviewOver) return;
 
     // Stop listening while processing
     SpeechRecognition.stopListening();
@@ -197,6 +225,12 @@ export default function QnASection({
     <Card className="p-4 bg-background rounded-xl shadow-md space-y-4">
       <h3 className="text-lg font-semibold mb-2">Interview Q&A</h3>
 
+      {/* Timer display */}
+      <div className="text-right text-sm font-medium text-gray-700">
+        Time Left: {Math.floor(timer / 60)}:
+        {(timer % 60).toString().padStart(2, "0")}
+      </div>
+
       {error && (
         <div className="text-red-500 p-2 bg-red-50 rounded">
           {error}
@@ -210,7 +244,7 @@ export default function QnASection({
       )}
 
       {/* Current Question */}
-      {currentQuestion && (
+      {currentQuestion && !interviewOver && (
         <div className="p-3 rounded-md border mt-4 space-y-3">
           <div className="font-bold text-foreground">Current Question:</div>
           <div className="text-muted-foreground">{currentQuestion}</div>
@@ -261,7 +295,7 @@ export default function QnASection({
               <button
                 onClick={() => {
                   // Force submit current transcript
-                  if (transcript.trim() && !isProcessing) {
+                  if (transcript.trim() && !isProcessing && !interviewOver) {
                     handleStopAndSend();
                   }
                 }}
@@ -275,6 +309,29 @@ export default function QnASection({
         </div>
       )}
 
+      {/* Interview Over Dialog */}
+      <Dialog open={interviewOver}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Interview Complete</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Your 5-minute interview session has ended. Thank you for
+            participating!
+          </DialogDescription>
+          <DialogFooter>
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() =>
+                router.push(`/dashboard/jobs/new/${jobId}/feedback`)
+              }
+            >
+              Check Feedback
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Debug info (remove in production) */}
       {process.env.NODE_ENV === "development" && (
         <div className="text-xs text-gray-400 mt-4">
@@ -283,6 +340,7 @@ export default function QnASection({
           <div>Current Question: {currentQuestion ? "Yes" : "No"}</div>
           <div>Transcript: {transcript || "None"}</div>
           <div>Countdown: {countdown !== null ? countdown : "Inactive"}</div>
+          <div>Timer: {timer}</div>
         </div>
       )}
     </Card>
