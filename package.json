@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.23.0",
+    "@clerk/types": "^4.68.0",
     "@langchain/community": "^0.3.48",
     "@langchain/core": "^0.3.62",
     "@napi-rs/canvas": "^0.1.73",
